@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="ichbinblau">
 <meta property="og:description" content="The article is to document the steps I took to install Kubernetes cluster on Centos 7.3 with kubeadm.  PrerequisitesSystem ConfigurationWe suppose we have four servers ready, one as k8s master and the">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-09-21T03:08:03.835Z">
+<meta property="og:updated_time" content="2017-09-21T05:56:46.233Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Setup Kubernetes Cluster on Centos 7.3 with Kubeadm">
 <meta name="twitter:description" content="The article is to document the steps I took to install Kubernetes cluster on Centos 7.3 with kubeadm.  PrerequisitesSystem ConfigurationWe suppose we have four servers ready, one as k8s master and the">
@@ -268,7 +268,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ichbinblau">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -363,6 +363,30 @@
 <p><code>32202</code> in the output is the NodePort. You can visit the dashboard by <code>http://&lt;master-ip&gt;:&lt;node_port&gt;</code> now. In our case, the url is <code>http://192.168.1.102:32202</code>. </p>
 <h2 id="Tear-Down"><a href="#Tear-Down" class="headerlink" title="Tear Down"></a>Tear Down</h2><p>Firstly, <a href="https://kubernetes.io/docs/user-guide/kubectl/v1.7/#drain" target="_blank" rel="external">drain</a> the nodes on the master or wherever credential is configured. It does a graceful termination and marks the node as unschedulable.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ kubectl drain &lt;node name&gt; --delete-local-data --force --ignore-daemonsets</div><div class="line">$ kubectl delete node &lt;node name&gt;</div></pre></td></tr></table></figure></p>
 <p>Then on the node to be removed, remove all the configuration files and settings<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo kubeadm reset</div></pre></td></tr></table></figure></p>
+<h2 id="Diagnose"><a href="#Diagnose" class="headerlink" title="Diagnose"></a>Diagnose</h2><ul>
+<li><p>Check services and pods status. <code>kube-system</code> is the default namespace for system-level pods. You may also pass other specific namespaces. Use <code>--all-namespaces</code> to check all namespaces</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl get po,svc -n kube-system</div></pre></td></tr></table></figure>
+<p>This is how the output looks like:</p>
+<blockquote>
+<p>NAME                                       READY     STATUS    RESTARTS   AGE<br> po/etcd-loadbalancer                       1/1       Running   0          1d<br> po/kube-apiserver-loadbalancer             1/1       Running   0          1d<br> po/kube-controller-manager-loadbalancer    1/1       Running   0          1d<br> po/kube-dns-2425271678-zj91n               3/3       Running   0          1d<br> po/kube-flannel-ds-w9dvz                   2/2       Running   0          1d<br> po/kube-flannel-ds-zn6c4                   2/2       Running   1          1d<br> po/kube-proxy-m6nvj                        1/1       Running   0          1d<br> po/kube-proxy-w92kx                        1/1       Running   0          1d<br> po/kube-scheduler-loadbalancer             1/1       Running   0          1d<br> po/kubernetes-dashboard-3313488171-tkdtz   1/1       Running   0          1d</p>
+<p> NAME                       CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE<br> svc/kube-dns               10.96.0.10      <none>        53/UDP,53/TCP   1d<br> svc/kubernetes-dashboard   10.102.129.68   <nodes>       80:32202/TCP    1d</nodes></none></p>
+</blockquote>
+</li>
+<li><p>Check pods logs. Get pod name from the command above (eg. <code>kubernetes-dashboard-3313488171-tkdtz</code>). Use <code>-c &lt;container_name&gt;</code> if there are more than one containers running in the pod. </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl logs &lt;pod_name&gt; -f -n kube-system</div></pre></td></tr></table></figure>
+</li>
+<li><p>Run commands in the container. Use <code>-c &lt;container_name&gt;</code> if there are more than one containers running in the pod.<br>Run a single command:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl exec &lt;pod_name&gt; -n &lt;namespace&gt; &lt;command_ to_run&gt;</div></pre></td></tr></table></figure>
+<p>Enter the container’s shell:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl exec -it &lt;pod_name&gt; -n &lt;namespace&gt; -- /bin/bash</div></pre></td></tr></table></figure>
+</li>
+<li><p>Check Docker logs</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo journalctl -u docker.service -f</div></pre></td></tr></table></figure>
+</li>
+<li><p>Check kubelet logs</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo journalctl -u kubelet.service -f</div></pre></td></tr></table></figure>
+</li>
+</ul>
 <hr>
 <p>References:</p>
 <ol>
@@ -459,7 +483,7 @@
       <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="/images/avatar.png"
                alt="ichbinblau" />
           <p class="site-author-name" itemprop="name">ichbinblau</p>
            
@@ -519,7 +543,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Prerequisites"><span class="nav-number">1.</span> <span class="nav-text">Prerequisites</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#System-Configuration"><span class="nav-number">1.0.1.</span> <span class="nav-text">System Configuration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Environment-Preparation"><span class="nav-number">1.0.2.</span> <span class="nav-text">Environment Preparation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-kubeadm-and-kubelet-on-each-of-your-hosts"><span class="nav-number">2.</span> <span class="nav-text">Install kubeadm and kubelet on each of your hosts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Docker-on-each-of-your-hosts"><span class="nav-number">3.</span> <span class="nav-text">Install Docker on each of your hosts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Initialize-Master"><span class="nav-number">4.</span> <span class="nav-text">Initialize Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Flannel-Pod-Network-Plugin"><span class="nav-number">5.</span> <span class="nav-text">Install Flannel Pod Network Plugin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Join-Nodes-to-Cluster"><span class="nav-number">6.</span> <span class="nav-text">Join Nodes to Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Dashboard-Add-on"><span class="nav-number">7.</span> <span class="nav-text">Install Dashboard Add-on</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tear-Down"><span class="nav-number">8.</span> <span class="nav-text">Tear Down</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Prerequisites"><span class="nav-number">1.</span> <span class="nav-text">Prerequisites</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#System-Configuration"><span class="nav-number">1.0.1.</span> <span class="nav-text">System Configuration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Environment-Preparation"><span class="nav-number">1.0.2.</span> <span class="nav-text">Environment Preparation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-kubeadm-and-kubelet-on-each-of-your-hosts"><span class="nav-number">2.</span> <span class="nav-text">Install kubeadm and kubelet on each of your hosts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Docker-on-each-of-your-hosts"><span class="nav-number">3.</span> <span class="nav-text">Install Docker on each of your hosts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Initialize-Master"><span class="nav-number">4.</span> <span class="nav-text">Initialize Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Flannel-Pod-Network-Plugin"><span class="nav-number">5.</span> <span class="nav-text">Install Flannel Pod Network Plugin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Join-Nodes-to-Cluster"><span class="nav-number">6.</span> <span class="nav-text">Join Nodes to Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Dashboard-Add-on"><span class="nav-number">7.</span> <span class="nav-text">Install Dashboard Add-on</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tear-Down"><span class="nav-number">8.</span> <span class="nav-text">Tear Down</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Diagnose"><span class="nav-number">9.</span> <span class="nav-text">Diagnose</span></a></li></ol></div>
             
 
           </div>
