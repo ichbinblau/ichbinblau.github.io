@@ -260,6 +260,131 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/21/Run-Applications-in-Kubernetes-Cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ichbinblau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ichbinblau">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/09/21/Run-Applications-in-Kubernetes-Cluster/" itemprop="url">Run Applications in Kubernetes Cluster</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-21T17:47:11+08:00">
+                2017-09-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><p>We suppose that the Kubernetes cluster is up and running with at least one master and one node.<br>Credential has been properly configured and <code>kubectl</code> can be used on at least one of the hosts.<br>Download all the yaml files from <a href="https://github.com/ichbinblau/SmartHome-Demo.git" target="_blank" rel="external">git repo</a> and switch to the directory that contains configuration files.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git clone https://github.com/ichbinblau/SmartHome-Demo.git</div><div class="line">$ git checkout k8s</div><div class="line">$ cd SmartHome-Demo/smarthome-web-portal/tools/yamls</div></pre></td></tr></table></figure></p>
+<h2 id="Create-a-New-Namespace"><a href="#Create-a-New-Namespace" class="headerlink" title="Create a New Namespace"></a>Create a New Namespace</h2><p>There are a couple of pre-defined namespaces for different purposes (<code>default</code>, <code>kube-system</code>, <code>kube-public</code>). The <code>namespace.yaml</code> defines a new namespace named <code>iot2cloud</code>. Here is the <code>namespace.yaml</code> file:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cat namespace.yaml</div><div class="line">apiVersion: v1</div><div class="line">kind: Namespace</div><div class="line">metadata:</div><div class="line">  name: iot2cloud</div></pre></td></tr></table></figure></p>
+<p>We create a new namespace for our applications.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubectl create -f namespace.yaml</div></pre></td></tr></table></figure></p>
+<p>  You can check the namespaces<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ kubectl get namespaces</div><div class="line">NAME          STATUS    AGE</div><div class="line">default       Active    1d</div><div class="line">iot2cloud     Active    34s</div><div class="line">kube-public   Active    1d</div><div class="line">kube-system   Active    1d</div></pre></td></tr></table></figure></p>
+<p>Voila, we have a new namespace created. In order to simplify the command, we create an alias for the namespace in the context. Alternatively, you can make it persistent by add this to your <code>$HOME/.bashrc</code> file.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ alias kub=&apos;kubectl --namespace iot2cloud&apos;</div></pre></td></tr></table></figure></p>
+<h2 id="Set-up-MariaDB"><a href="#Set-up-MariaDB" class="headerlink" title="Set up MariaDB"></a>Set up MariaDB</h2><p><strong>To be continued</strong> </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/20/Setup-Kubernetes-Cluster-on-Centos-7-3-with-Kubeadm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -340,10 +465,11 @@
 <p>By default, the following command installs the latest kubelet and kubeadm. If you want to install a specific version,  you may check the versions.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo yum list kubeadm  --showduplicates |sort -r</div><div class="line">kubeadm.x86_64                        1.7.5-0                        kubernetes</div><div class="line">kubeadm.x86_64                        1.7.4-0                        kubernetes</div></pre></td></tr></table></figure></p>
 <p>And install the specific version ( eg. v1.7.5 )<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo yum install kubeadm-1.7.5-0</div></pre></td></tr></table></figure></p>
 <h2 id="Install-Docker-on-each-of-your-hosts"><a href="#Install-Docker-on-each-of-your-hosts" class="headerlink" title="Install Docker on each of your hosts"></a>Install Docker on each of your hosts</h2><p>For the time being, Docker version 1.12.x is still the preferred and verified version that Kubernetes officially supported according to it <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/#installing-docker" target="_blank" rel="external">doc</a>.  But this <a href="https://stackoverflow.com/questions/44657320/which-docker-versions-will-k8s-1-7-support" target="_blank" rel="external">thread</a> says that they will add support for Docker 1.13 very soon.<br>We will install Docker 1.12 for now. Use the following command to set up the  repository.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ cat &lt;&lt; EOF &gt; /etc/yum.repos.d/docker.repo</div><div class="line">[dockerrepo]</div><div class="line">name=Docker Repository</div><div class="line">baseurl=https://yum.dockerproject.org/repo/main/centos/7</div><div class="line">enabled=1</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=https://yum.dockerproject.org/gpg</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
-<p>Make yum cache and check possible Docker 1.12.x versions<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo yum makecache</div><div class="line">$ sudo yum list docker-engine  --showduplicates |sort -r</div><div class="line">docker-engine.x86_64             1.12.6-1.el7.centos                 dockerrepo</div><div class="line">$ sudo yum install docker-engine-1.12.6 -y</div></pre></td></tr></table></figure></p>
+<p>Make yum cache and check possible Docker 1.12.x versions<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo yum makecache</div><div class="line">$ sudo yum list docker-engine  --showduplicates |sort -r</div><div class="line">docker-engine.x86_64             1.12.6-1.el7.centos                 dockerrepo</div></pre></td></tr></table></figure></p>
+<p>Intall and start Docker service<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo yum install docker-engine-1.12.6 -y </div><div class="line">$ sudo systemctl enable docker </div><div class="line">$ sudo systemctl start docker</div></pre></td></tr></table></figure></p>
 <p>Verify if your Docker cgroup driver matches the kubelet config:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo docker info |grep -i cgroup</div><div class="line">$ sudo cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf</div></pre></td></tr></table></figure></p>
 <p>The default cgroup driver in kubelet config is <code>systemd</code>. If Docker’s cgroup driver is not <code>systemd</code> but <code>cgroupfs</code>.  Update the cgroup driver in <code>/etc/systemd/system/kubelet.service.d/10-kubeadm.conf</code> to  <code>KUBELET_CGROUP_ARGS=--cgroup-driver=cgroupfs</code><br>Further, if your Docker runs behind corporate network, set up the proxy in the Docker config:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ cat &lt;&lt; EOF &gt;/etc/systemd/system/docker.service.d/http-proxy.conf</div><div class="line">[Service]</div><div class="line">Environment=&quot;HTTP_PROXY=http://proxy_ip:proxy_port/&quot; &quot;NO_PROXY=localhost,127.0.0.1,192.168.1.102,192.168.1.103,192.168.1.101,192.168.1.104,loadbalancer,gateway1,gateway2,gateway3&quot;</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
-<p>Then reload the config:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo systemctl daemon-reload</div><div class="line">$ sudo systemctl restart kubelet</div></pre></td></tr></table></figure></p>
+<p>Then reload the config:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo systemctl daemon-reload</div><div class="line">$ sudo systemctl restart kubelet</div><div class="line">$ sudo systemctl restart docker  # restart docker if you add proxy config</div></pre></td></tr></table></figure></p>
 <h2 id="Initialize-Master"><a href="#Initialize-Master" class="headerlink" title="Initialize Master"></a>Initialize Master</h2><p>On the master node (load balancer), if you run as root, do<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kubeadm init --apiserver-advertise-address=192.168.1.102 --pod-network-cidr=10.244.0.0/16</div></pre></td></tr></table></figure></p>
 <p>If you run as a normal user, do<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo -E -c &quot;kubeadm init --apiserver-advertise-address=192.168.1.102 --pod-network-cidr=10.244.0.0/16&quot;</div></pre></td></tr></table></figure></p>
 <p>If <code>--apiserver-advertise-address</code> is not specified, it auto-detects the network interface to advertise the master. Better to set the argument if there are more than one network interface.<br><code>--pod-network-cidr</code>is to specify the virtual IP range for the third party network plugin. We use <a href="https://github.com/coreos/flannel" target="_blank" rel="external">flannel</a> as our network plugin here.<br>Set <code>--use-kubernetes-version</code>if you want to use specific Kubernetes version.<br>To start using your cluster, you need to run (as a regular user):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mkdir -p $HOME/.kube</div><div class="line">sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</div><div class="line">sudo chown $(id -u):$(id -g) $HOME/.kube/config</div></pre></td></tr></table></figure></p>
@@ -473,7 +599,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
