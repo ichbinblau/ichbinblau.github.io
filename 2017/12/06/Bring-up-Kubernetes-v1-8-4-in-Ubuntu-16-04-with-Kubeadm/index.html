@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Kubernetes,kubeadm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Kubernetes has released v1.8 since Sepetember 2017. The former installation steps for v1.75 are not compatible to the new version. The article is to document the steps I took to install Kubernetes clu">
+<meta name="keywords" content="Kubernetes,kubeadm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bring up Kubernetes v1.8.4 on Ubuntu 16.04 LTS with kubeadm">
+<meta property="og:url" content="http://yoursite.com/2017/12/06/Bring-up-Kubernetes-v1-8-4-in-Ubuntu-16-04-with-Kubeadm/index.html">
+<meta property="og:site_name" content="ichbinblau">
+<meta property="og:description" content="Kubernetes has released v1.8 since Sepetember 2017. The former installation steps for v1.75 are not compatible to the new version. The article is to document the steps I took to install Kubernetes clu">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-07T07:58:37.190Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bring up Kubernetes v1.8.4 on Ubuntu 16.04 LTS with kubeadm">
+<meta name="twitter:description" content="Kubernetes has released v1.8 since Sepetember 2017. The former installation steps for v1.75 are not compatible to the new version. The article is to document the steps I took to install Kubernetes clu">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/06/Bring-up-Kubernetes-v1-8-4-in-Ubuntu-16-04-with-Kubeadm/"/>
+
+
+
+
+
+  <title>Bring up Kubernetes v1.8.4 on Ubuntu 16.04 LTS with kubeadm | ichbinblau</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ichbinblau</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/06/Bring-up-Kubernetes-v1-8-4-in-Ubuntu-16-04-with-Kubeadm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ichbinblau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ichbinblau">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Bring up Kubernetes v1.8.4 on Ubuntu 16.04 LTS with kubeadm</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-06T17:20:04+08:00">
+                2017-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Kubernetes has released v1.8 since Sepetember 2017. The former installation steps for v1.75 are not compatible to the new version. The article is to document the steps I took to install Kubernetes cluster on Ubuntu Server 16.04 LTS with <a href="https://kubernetes.io/docs/admin/kubeadm/" target="_blank" rel="external">kubeadm</a>. The steps are tested by installing Kubernetes v1.8.4.   </p>
+<h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><p>Install Ubuntu Server 16.04 LTS using the HWE kernel (version 4.10) option.</p>
+<h4 id="Environment-Preparation"><a href="#Environment-Preparation" class="headerlink" title="Environment Preparation"></a>Environment Preparation</h4><p>Setup proxy if you work behind the corporate network as Kubeadm uses the system proxy to download components. Put the following settings in the <code>$HOME/.bashrc</code> file.  Be mindful to put the master host’s IP address in the no_proxy list.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">export http_proxy=http://proxy_ip:proxy_port/</div><div class="line">export https_proxy=http://proxy_ip:proxy_port/</div><div class="line">export ftp_proxy=http://proxy_ip:proxy_port/</div><div class="line">export no_proxy=192.168.1.102,192.168.1.103,192.168.1.101,192.168.1.104,127.0.0.1,localhost,loadbalancer,gateway1,gateway2,gateway3</div></pre></td></tr></table></figure></p>
+<p>And check your proxy settings:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">env | grep proxy</div></pre></td></tr></table></figure></p>
+<p>Next perform a software update for all packages before you continue with the cluster installation.</p>
+<h2 id="Install-latest-OS-updates"><a href="#Install-latest-OS-updates" class="headerlink" title="Install latest OS updates"></a>Install latest OS updates</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt update &amp;&amp; sudo apt upgrade</div></pre></td></tr></table></figure>
+<h4 id="System-Configuration"><a href="#System-Configuration" class="headerlink" title="System Configuration"></a>System Configuration</h4><p>We suppose that we have four servers ready, one as k8s master and the other three as k8s nodes.<br>Configure local DNS in <code>/etc/hosts</code>.  Map the IP address with host names.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">192.168.1.102 loadbalancer</div><div class="line">192.168.1.101 gateway1</div><div class="line">192.168.1.103 gateway2</div><div class="line">192.168.1.104 gateway3</div></pre></td></tr></table></figure></p>
+<h2 id="Install-Kubernetes-version-1-8-4-on-each-of-your-hosts"><a href="#Install-Kubernetes-version-1-8-4-on-each-of-your-hosts" class="headerlink" title="Install Kubernetes version 1.8.4 on each of your hosts."></a>Install Kubernetes version 1.8.4 on each of your hosts.</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt install -y kubeadm kubelet kubectl</div></pre></td></tr></table></figure>
+<h2 id="Install-Docker-version-17-09-on-each-of-your-hosts"><a href="#Install-Docker-version-17-09-on-each-of-your-hosts" class="headerlink" title="Install Docker version 17.09 on each of your hosts"></a>Install Docker version 17.09 on each of your hosts</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install -y \</div><div class="line">    apt-transport-https \</div><div class="line">    ca-certificates \</div><div class="line">    curl \</div><div class="line">    software-properties-common</div><div class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -</div><div class="line">sudo add-apt-repository \</div><div class="line">   &quot;deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo &quot;$ID&quot;) \</div><div class="line">   $(lsb_release -cs) \</div><div class="line">   stable&quot;</div><div class="line">sudo apt-get update &amp;&amp; sudo apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.09 | head -1 | awk &apos;&#123;print $3&#125;&apos;)</div></pre></td></tr></table></figure>
+<p><strong>Note</strong>: Make sure that the cgroup driver used by kubelet is the same as the one used by Docker. To ensure compatibility you can either update Docker settings (like what the <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/#installing-docker" target="_blank" rel="external">official document</a> recommends) or update kubelet setting by adding the setting option below to  file <code>/etc/systemd/system/kubelet.service.d/10-kubeadm.conf</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Environment=&quot;KUBELET_CGROUP_ARGS=--cgroup-driver=cgroupfs&quot;</div></pre></td></tr></table></figure></p>
+<h2 id="Initialize-Kubernetes-Master"><a href="#Initialize-Kubernetes-Master" class="headerlink" title="Initialize Kubernetes Master"></a>Initialize Kubernetes Master</h2><p>On the master node (load balancer), if you run as root, do<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubeadm init --apiserver-advertise-address=192.168.1.102 --pod-network-cidr=10.244.0.0/16 --skip-preflight-checks</div></pre></td></tr></table></figure></p>
+<p>If you run as a normal user, do<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo -E kubeadm init --apiserver-advertise-address=192.168.1.102 --pod-network-cidr=10.244.0.0/16 --skip-preflight-checks</div></pre></td></tr></table></figure></p>
+<p>If <code>--apiserver-advertise-address</code> is not specified, it auto-detects the network interface to advertise the master. Better to set the argument if there are more than one network interface.<br><code>--pod-network-cidr</code>is to specify the virtual IP range for the third party network plugin.<br>Set <code>--use-kubernetes-version</code>if you want to use a specific Kubernetes version.<br>To start using your cluster, you need to run (as a regular user):<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mkdir -p $HOME/.kube</div><div class="line">sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</div><div class="line">sudo chown $(id -u):$(id -g) $HOME/.kube/config</div></pre></td></tr></table></figure></p>
+<p>By default, your cluster will not schedule pods on the master for security reasons. Expand your load capacity if you want to schedule pods on your master.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</div></pre></td></tr></table></figure></p>
+<h2 id="Install-WeaveNet-Pod-Network-Plugin"><a href="#Install-WeaveNet-Pod-Network-Plugin" class="headerlink" title="Install WeaveNet Pod Network Plugin"></a>Install WeaveNet Pod Network Plugin</h2><p>A pod network add-on is supposed to be installed in order that pods can communicate with each other.<br>Set <code>/proc/sys/net/bridge/bridge-nf-call-iptables</code> to 1 by running <code>sysctl net.bridge.bridge-nf-call-iptables=1</code> to pass bridged IPv4 traffic to iptables’ chains.<br>Then run:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl apply -f &quot;https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d &apos;\n&apos;)&quot;</div></pre></td></tr></table></figure></p>
+<p>Check the status of Weave pods and make sure that it is in <code>Running</code> state:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl get pod --all-namespaces -o wide</div></pre></td></tr></table></figure></p>
+<h2 id="Join-Nodes-to-Cluster"><a href="#Join-Nodes-to-Cluster" class="headerlink" title="Join Nodes to Cluster"></a>Join Nodes to Cluster</h2><p>Get the cluster token on master:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo kubeadm token list</div></pre></td></tr></table></figure></p>
+<p>Since Kubernetes v1.8, the token is only valid for 24 hours. You may generate another token if the previous one gets expired.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo kubeadm token generate</div></pre></td></tr></table></figure></p>
+<p>Run the commands below on each of the nodes:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo kubeadm join --token 15491e.0c0c9c99dfbbe690 192.168.1.102:6443 --discovery-token-ca-cert-hash sha256:82a08ef9c830f240e588a26a8ff0a311e6fe3127c1ee4c5fc019f1369007c0b7 --skip-preflight-checks</div></pre></td></tr></table></figure></p>
+<p>Replace <code>e5e6d6.6710059ca7130394</code> with the actual token got from <code>kubeadm</code> command.<br>“Pub key validation” can be skipped passing <code>--discovery-token-unsafe-skip-ca-verification flag</code> instead of using <code>--discovery-token-ca-cert-hash</code> but the security would be weakened;<br>And check whether nodes joins the cluster successfully.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl get nodes</div></pre></td></tr></table></figure></p>
+<h2 id="Install-Dashboard-Add-on"><a href="#Install-Dashboard-Add-on" class="headerlink" title="Install Dashboard Add-on"></a>Install Dashboard Add-on</h2><p>Create the dashboard pod :<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml</div></pre></td></tr></table></figure></p>
+<p>To start using Dashboard run following command:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">kubectl proxy --address=&quot;&lt;ip-addr-listen-on&gt;&quot; -p &lt;listening-port&gt;</div><div class="line">eg. $kubectl proxy –-address=&quot;192.168.1.102&quot; –p 8001</div></pre></td></tr></table></figure></p>
+<p>Then access the dashboard at <a href="http://192.168.1.102:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/" target="_blank" rel="external">http://192.168.1.102:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/</a>. Place the IP address with the actually IP you are using. </p>
+<p>There is a new login page in the new version like this: And there are a couple of ways to login <a href="https://github.com/kubernetes/dashboard/wiki/Access-control#authentication" target="_blank" rel="external">here</a>. For development purpose, you may simply grant full admin privileges to Dashboard’s Service Account by creating below ClusterRoleBinding. Copy the contents below and save as a file named <code>dashboard-admin.yaml</code>.  Use <code>kubectl create -f dashboard-admin.yaml</code> to deploy it. Afterwards you can use Skip option on login page to access Dashboard.</p>
+<h2 id="Tear-Down"><a href="#Tear-Down" class="headerlink" title="Tear Down"></a>Tear Down</h2><p>Firstly, <a href="https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/#tear-down" target="_blank" rel="external">drain</a> the nodes on the master or wherever credential is configured. It does a graceful termination and marks the node as unschedulable.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">kubectl drain &lt;node name&gt; --delete-local-data --force --ignore-daemonsets</div><div class="line">kubectl delete node &lt;node name&gt;</div></pre></td></tr></table></figure></p>
+<p>Then on the node to be removed, remove all the configuration files and settings<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo kubeadm reset</div></pre></td></tr></table></figure></p>
+<h2 id="Diagnose"><a href="#Diagnose" class="headerlink" title="Diagnose"></a>Diagnose</h2><ul>
+<li><p>Check services and pods status. <code>kube-system</code> is the default namespace for system-level pods. You may also pass other specific namespaces. Use <code>--all-namespaces</code> to check all namespaces</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl get po,svc -n kube-system</div></pre></td></tr></table></figure>
+<p>This is how the output looks like:</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">NAME                                       READY     STATUS    RESTARTS   AGE</div><div class="line">po/etcd-loadbalancer                       1/1       Running   0          1d</div><div class="line">po/kube-apiserver-loadbalancer             1/1       Running   0          1d</div><div class="line">po/kube-controller-manager-loadbalancer    1/1       Running   0          1d</div><div class="line">po/kube-dns-2425271678-zj91n               3/3       Running   0          1d</div><div class="line">po/kube-flannel-ds-w9dvz                   2/2       Running   0          1d</div><div class="line">po/kube-flannel-ds-zn6c4                   2/2       Running   1          1d</div><div class="line">po/kube-proxy-m6nvj                        1/1       Running   0          1d</div><div class="line">po/kube-proxy-w92kx                        1/1       Running   0          1d</div><div class="line">po/kube-scheduler-loadbalancer             1/1       Running   0          1d</div><div class="line">po/kubernetes-dashboard-3313488171-tkdtz   1/1       Running   0          1d</div><div class="line"></div><div class="line">NAME                       CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE</div><div class="line">svc/kube-dns               10.96.0.10      &lt;none&gt;        53/UDP,53/TCP   1d</div><div class="line">svc/kubernetes-dashboard   10.102.129.68   &lt;nodes&gt;       80:32202/TCP    1d</div></pre></td></tr></table></figure>
+</li>
+<li><p>Check pods logs. Get pod name from the command above (eg. <code>kubernetes-dashboard-3313488171-tkdtz</code>). Use <code>-c &lt;container_name&gt;</code> if there are more than one containers running in the pod.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl logs &lt;pod_name&gt; -f -n kube-system</div></pre></td></tr></table></figure>
+</li>
+<li><p>Run commands in the container. Use <code>-c &lt;container_name&gt;</code> if there are more than one containers running in the pod.<br>Run a single command:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl exec &lt;pod_name&gt; -n &lt;namespace&gt; &lt;command_ to_run&gt;</div></pre></td></tr></table></figure>
+<p>Enter the container’s shell:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubectl exec -it &lt;pod_name&gt; -n &lt;namespace&gt; -- /bin/bash</div></pre></td></tr></table></figure>
+</li>
+<li><p>Check Docker logs</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo journalctl -u docker.service -f</div></pre></td></tr></table></figure>
+</li>
+<li><p>Check kubelet logs</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo journalctl -u kubelet.service -f</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<p>References:</p>
+<ol>
+<li><a href="https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/" target="_blank" rel="external">https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/</a></li>
+<li><a href="https://kubernetes.io/docs/admin/kubeadm/" target="_blank" rel="external">https://kubernetes.io/docs/admin/kubeadm/</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+          
+            <a href="/tags/kubeadm/" rel="tag"># kubeadm</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/21/Run-Applications-in-Kubernetes-Cluster/" rel="next" title="Run Applications in Kubernetes Cluster">
+                <i class="fa fa-chevron-left"></i> Run Applications in Kubernetes Cluster
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="ichbinblau" />
+          <p class="site-author-name" itemprop="name">ichbinblau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Prerequisites"><span class="nav-number">1.</span> <span class="nav-text">Prerequisites</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Environment-Preparation"><span class="nav-number">1.0.1.</span> <span class="nav-text">Environment Preparation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-latest-OS-updates"><span class="nav-number">2.</span> <span class="nav-text">Install latest OS updates</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#System-Configuration"><span class="nav-number">2.0.1.</span> <span class="nav-text">System Configuration</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Kubernetes-version-1-8-4-on-each-of-your-hosts"><span class="nav-number">3.</span> <span class="nav-text">Install Kubernetes version 1.8.4 on each of your hosts.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Docker-version-17-09-on-each-of-your-hosts"><span class="nav-number">4.</span> <span class="nav-text">Install Docker version 17.09 on each of your hosts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Initialize-Kubernetes-Master"><span class="nav-number">5.</span> <span class="nav-text">Initialize Kubernetes Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-WeaveNet-Pod-Network-Plugin"><span class="nav-number">6.</span> <span class="nav-text">Install WeaveNet Pod Network Plugin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Join-Nodes-to-Cluster"><span class="nav-number">7.</span> <span class="nav-text">Join Nodes to Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Dashboard-Add-on"><span class="nav-number">8.</span> <span class="nav-text">Install Dashboard Add-on</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tear-Down"><span class="nav-number">9.</span> <span class="nav-text">Tear Down</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Diagnose"><span class="nav-number">10.</span> <span class="nav-text">Diagnose</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ichbinblau</span>
+</div>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+Total <span id="busuanzi_value_site_pv"></span> views.
+您是ichbinblau的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+<span id="busuanzi_value_page_pv"></span> Hits
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
