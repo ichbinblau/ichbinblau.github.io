@@ -8,7 +8,7 @@ tags:
 Kubernetes has released v1.8 since Sepetember 2017. The former installation steps for v1.75 are not compatible to the new version. The article is to document the steps I took to install Kubernetes cluster on Ubuntu Server 16.04 LTS with [kubeadm](https://kubernetes.io/docs/admin/kubeadm/). The steps are tested by installing Kubernetes v1.8.4.   
 
 ## Prerequisites
-Install Ubuntu Server 16.04 LTS using the HWE kernel (version 4.10) option.
+Install Ubuntu Server 16.04 LTS using the HWE kernel (version 4.10) option. The HWE kernel is version 4.10 and aims to support newer platforms, while the Ubuntu Sever 16.04 LTS standard kernel is version 4.40. 
 
 #### Environment Preparation
 
@@ -82,6 +82,7 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 sudo systemctl restart kubelet
 ```
+Other than that, it is highly recommended that you use the `overlay2` driver which is faster and stronger than other docker storage drivers. You may follow the instructions [here](https://docs.docker.com/engine/userguide/storagedriver/overlayfs-driver/#prerequisites) to complete the installation. 
 
 ## Initialize Kubernetes Master
 
