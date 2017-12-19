@@ -260,6 +260,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/19/Running-the-NCSDK-examples-in-Docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ichbinblau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ichbinblau">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/19/Running-the-NCSDK-examples-in-Docker/" itemprop="url">Running the NCSDK examples in Docker</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-19T14:41:32+08:00">
+                2017-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>In Movidius’s official documentation, containers are not an explicitly supported platform till Dec, 2017. Hence, I decided to test whether the NCS (neural compute stick) can be accessed from containers.  Benefiting a lot from this <a href="https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs" target="_blank" rel="external">discussion thread</a>, I was able to run the ncsdk examples in Docker container. Here are the steps I took to make it happen. </p>
+<h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><p>My test environment:</p>
+<ul>
+<li>Host: Ubuntu 16.04.2</li>
+<li>Docker: docker-ce v17.09</li>
+<li>Movidius compute stick attached</li>
+</ul>
+<h2 id="Build-Docker-image-with-ncsdk-installed"><a href="#Build-Docker-image-with-ncsdk-installed" class="headerlink" title="Build Docker image with ncsdk installed"></a>Build Docker image with ncsdk installed</h2><p>The <a href="https://github.com/ichbinblau/ncsdk_container/blob/master/Dockerfile" target="_blank" rel="external">Dockerfile</a> I used to install the ncsdk and make the examples is borrowed from the instruction. I created a repo and uploaded the Dockerfile and its config files to it. You may check this <a href="https://github.com/ichbinblau/ncsdk_container" target="_blank" rel="external">branch</a>, and build the Docker image yourself. Run:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/ichbinblau/ncsdk_container </div><div class="line">cd ncsdk_container</div><div class="line">sudo docker build -t the_image_name .</div></pre></td></tr></table></figure>
+<p><strong>Note</strong>: Do build the image without proxy because ncsdk installer does not take any proxy setting options for the time being. Otherwise, you maybe stuck at installing python dependencies. </p>
+<p>Alternatively, you can download the <a href="https://hub.docker.com/r/xshan1/ncsdk_container/" target="_blank" rel="external">image</a> I built on DockerHub straightaway. Run:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker pull xshan1/ncsdk_container</div></pre></td></tr></table></figure>
+<h2 id="Run-ncsdk-examples-in-Docker"><a href="#Run-ncsdk-examples-in-Docker" class="headerlink" title="Run ncsdk examples in Docker"></a>Run ncsdk examples in Docker</h2><p>The ncforum provided a way to run Docker container which is accessible to the ncs. Host network mode is recommended to make the usb compute stick visible. </p>
+<blockquote>
+<p>There have been some users who have had USB related problems using the Intel NCS within a docker environment and we have found that including the <code>--net=host</code> flag can help make the device manager events visible to libusb in a docker environment. </p>
+</blockquote>
+<p>Therefore, I used the below command:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash</div></pre></td></tr></table></figure>
+<p>Then it leads to an interactive terminal in the container like this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk$</div></pre></td></tr></table></figure>
+<p>Inside the container, you can run the examples to test the access to ncs.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cd examples/apps/hello_ncs_cpp/</div><div class="line">make help</div><div class="line">make hello_ncs_cpp</div><div class="line">make run</div></pre></td></tr></table></figure>
+<p>Then you will check the result by looking at command outputs:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk/examples/apps/hello_ncs_cpp$ make run</div><div class="line"></div><div class="line">making hello_ncs_cpp</div><div class="line">g++ cpp/hello_ncs.cpp -o cpp/hello_ncs_cpp -lmvnc</div><div class="line">Created cpp/hello_ncs_cpp executable</div><div class="line"></div><div class="line">making run</div><div class="line">cd cpp; ./hello_ncs_cpp; cd ..</div><div class="line">Hello NCS! Device opened normally.</div><div class="line">Goodbye NCS!  Device Closed normally.</div><div class="line">NCS device working.</div></pre></td></tr></table></figure>
+<p>Then you may continue to test the other model with different frameworks such as caffe and tensorflow under <code>examples</code> folder. </p>
+<h2 id="Known-issue"><a href="#Known-issue" class="headerlink" title="Known issue"></a>Known issue</h2><p>When I exit the container and try to create the container again, I got the following error:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">theresa@theresa-ubuntu:~$ sudo docker run -it --rm --net=host --name=ncsdk -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash</div><div class="line">docker: Error response from daemon: oci runtime error: container_linux.go:265: starting container process caused &quot;process_linux.go:368: container init caused \&quot;open /dev/console: input/output error\&quot;&quot;.</div></pre></td></tr></table></figure>
+<p>It looks like that <code>/dev/console</code> is locked and not released when container is destroyed. The current workaround I found is to reboot the system to release the lock.  </p>
+<p>Overall, this is quick test the possibility which might not be very mature. Welcome your comments and corrections.</p>
+<hr>
+<p>References:</p>
+<ol>
+<li><a href="https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs" target="_blank" rel="external">https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs</a></li>
+<li><a href="https://github.com/hughdbrown/movidius/tree/master/docker" target="_blank" rel="external">https://github.com/hughdbrown/movidius/tree/master/docker</a></li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/06/Bring-up-Kubernetes-v1-8-4-in-Ubuntu-16-04-with-Kubeadm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -803,7 +957,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -816,7 +970,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
