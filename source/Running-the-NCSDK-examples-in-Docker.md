@@ -6,7 +6,7 @@ tags:
 - Docker
 - NCSDK
 ---
-In Movidius's official documentation, Docker containers are not an explicitly supported platform (as of Dec, 2017). I decided to test whether the NCS (Neural Compute Stick) can be accessed from a container.  Benefiting from this [discussion thread](https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs), I was able to run the ncsdk examples in a Docker container. Here are the steps I took to make it happen. 
+In Movidius's official documentation, Docker container is not an explicitly supported platform (as of Dec, 2017). I am working for Intel and I decided to test whether the NCS (Neural Compute Stick) can be accessed from a container. Benefiting from this [discussion thread](https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs), I was able to run the ncsdk examples in a Docker container. Here are the steps I took to make it happen. 
 
 ## Prerequisites
 My test environment:

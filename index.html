@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-Hans">
+<html class="theme-next muse use-motion" lang="en">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -98,7 +98,7 @@
 <meta property="og:title" content="ichbinblau">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name" content="ichbinblau">
-<meta property="og:locale" content="zh-Hans">
+<meta property="og:locale" content="en">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ichbinblau">
 
@@ -115,7 +115,7 @@
     motion: true,
     duoshuo: {
       userId: '0',
-      author: '博主'
+      author: 'Author'
     },
     algolia: {
       applicationID: '',
@@ -153,7 +153,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
   
   
@@ -203,7 +203,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            首页
+            Home
           </a>
         </li>
       
@@ -213,7 +213,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            归档
+            Archives
           </a>
         </li>
       
@@ -223,7 +223,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            标签
+            Tags
           </a>
         </li>
       
@@ -289,9 +289,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">发表于</span>
+                <span class="post-meta-item-text">Posted on</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-19T14:41:32+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-19T14:41:32+08:00">
                 2017-12-19
               </time>
             
@@ -331,35 +331,35 @@
       
         
           
-            <p>In Movidius’s official documentation, containers are not an explicitly supported platform till Dec, 2017. Hence, I decided to test whether the NCS (neural compute stick) can be accessed from containers.  Benefiting a lot from this <a href="https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs" target="_blank" rel="external">discussion thread</a>, I was able to run the ncsdk examples in Docker container. Here are the steps I took to make it happen. </p>
+            <p>In Movidius’s official documentation, Docker container is not an explicitly supported platform (as of Dec, 2017). I am working for Intel and I decided to test whether the NCS (Neural Compute Stick) can be accessed from a container. Benefiting from this <a href="https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs" target="_blank" rel="external">discussion thread</a>, I was able to run the ncsdk examples in a Docker container. Here are the steps I took to make it happen. </p>
 <h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><p>My test environment:</p>
 <ul>
 <li>Host: Ubuntu 16.04.2</li>
 <li>Docker: docker-ce v17.09</li>
 <li>Movidius compute stick attached</li>
 </ul>
-<h2 id="Build-Docker-image-with-ncsdk-installed"><a href="#Build-Docker-image-with-ncsdk-installed" class="headerlink" title="Build Docker image with ncsdk installed"></a>Build Docker image with ncsdk installed</h2><p>The <a href="https://github.com/ichbinblau/ncsdk_container/blob/master/Dockerfile" target="_blank" rel="external">Dockerfile</a> I used to install the ncsdk and make the examples is borrowed from the instruction. I created a repo and uploaded the Dockerfile and its config files to it. You may check this <a href="https://github.com/ichbinblau/ncsdk_container" target="_blank" rel="external">branch</a>, and build the Docker image yourself. Run:</p>
+<h2 id="Build-Docker-image-with-ncsdk-installed"><a href="#Build-Docker-image-with-ncsdk-installed" class="headerlink" title="Build Docker image with ncsdk installed"></a>Build Docker image with ncsdk installed</h2><p>The <a href="https://github.com/ichbinblau/ncsdk_container/blob/master/Dockerfile" target="_blank" rel="external">Dockerfile</a> I used to install the ncsdk and make the examples is based on instructions from <a href="https://github.com/hughdbrown/movidius/tree/master/docker" target="_blank" rel="external">hughdbrown</a>. I created a repo and uploaded the Dockerfile and its config files to it. You may check this <a href="https://github.com/ichbinblau/ncsdk_container" target="_blank" rel="external">branch</a>, and build the Docker image yourself. Run:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/ichbinblau/ncsdk_container </div><div class="line">cd ncsdk_container</div><div class="line">sudo docker build -t the_image_name .</div></pre></td></tr></table></figure>
-<p><strong>Note</strong>: Do build the image without proxy because ncsdk installer does not take any proxy setting options for the time being. Otherwise, you maybe stuck at installing python dependencies. </p>
+<p><strong>Note</strong>: The ncsdk installer currently does not honor any proxy setting options. Build the image without being behind a proxy or the build step may get stuck installing python dependencies from the internet. </p>
 <p>Alternatively, you can download the <a href="https://hub.docker.com/r/xshan1/ncsdk_container/" target="_blank" rel="external">image</a> I built on DockerHub straightaway. Run:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker pull xshan1/ncsdk_container</div></pre></td></tr></table></figure>
-<h2 id="Run-ncsdk-examples-in-Docker"><a href="#Run-ncsdk-examples-in-Docker" class="headerlink" title="Run ncsdk examples in Docker"></a>Run ncsdk examples in Docker</h2><p>The ncforum provided a way to run Docker container which is accessible to the ncs. Host network mode is recommended to make the usb compute stick visible. </p>
+<h2 id="Run-ncsdk-examples-in-Docker"><a href="#Run-ncsdk-examples-in-Docker" class="headerlink" title="Run ncsdk examples in Docker"></a>Run ncsdk examples in Docker</h2><p>The ncforum provided a way to run a Docker container which is accessible to the NCS. Host network mode is recommended to make the USB compute stick visible. </p>
 <blockquote>
-<p>There have been some users who have had USB related problems using the Intel NCS within a docker environment and we have found that including the <code>--net=host</code> flag can help make the device manager events visible to libusb in a docker environment. </p>
+<p>Some users have had USB related problems using the Intel NCS within a Docker environment. We have found that including the <code>--net=host</code> flag can help make the device manager events visible to libusb in a Docker environment. </p>
 </blockquote>
-<p>Therefore, I used the below command:</p>
+<p>Therefore, I used this command:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash</div></pre></td></tr></table></figure>
-<p>Then it leads to an interactive terminal in the container like this:</p>
+<p>This leads to an interactive terminal in the container looking like this:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk$</div></pre></td></tr></table></figure>
-<p>Inside the container, you can run the examples to test the access to ncs.</p>
+<p>Inside the container, you can run the examples to test access to the NCS.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cd examples/apps/hello_ncs_cpp/</div><div class="line">make help</div><div class="line">make hello_ncs_cpp</div><div class="line">make run</div></pre></td></tr></table></figure>
-<p>Then you will check the result by looking at command outputs:</p>
+<p>Check the result by looking at the command outputs, such as this:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk/examples/apps/hello_ncs_cpp$ make run</div><div class="line"></div><div class="line">making hello_ncs_cpp</div><div class="line">g++ cpp/hello_ncs.cpp -o cpp/hello_ncs_cpp -lmvnc</div><div class="line">Created cpp/hello_ncs_cpp executable</div><div class="line"></div><div class="line">making run</div><div class="line">cd cpp; ./hello_ncs_cpp; cd ..</div><div class="line">Hello NCS! Device opened normally.</div><div class="line">Goodbye NCS!  Device Closed normally.</div><div class="line">NCS device working.</div></pre></td></tr></table></figure>
-<p>Then you may continue to test the other model with different frameworks such as caffe and tensorflow under <code>examples</code> folder. </p>
+<p>You may continue to test the other model with different frameworks such as caffe and tensorflow under the <code>examples</code> folder. </p>
 <h2 id="Known-issue"><a href="#Known-issue" class="headerlink" title="Known issue"></a>Known issue</h2><p>When I exit the container and try to create the container again, I got the following error:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">theresa@theresa-ubuntu:~$ sudo docker run -it --rm --net=host --name=ncsdk -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash</div><div class="line">docker: Error response from daemon: oci runtime error: container_linux.go:265: starting container process caused &quot;process_linux.go:368: container init caused \&quot;open /dev/console: input/output error\&quot;&quot;.</div></pre></td></tr></table></figure>
-<p>It looks like that <code>/dev/console</code> is locked and not released when container is destroyed. The current workaround I found is to reboot the system to release the lock.  </p>
-<p>Overall, this is quick test the possibility which might not be very mature. Welcome your comments and corrections.</p>
+<p>It looks like <code>/dev/console</code> is locked and not released when the container is destroyed. The workaround I found was to reboot the system to release the lock.  </p>
+<h2 id="Comments-welcome"><a href="#Comments-welcome" class="headerlink" title="Comments welcome"></a>Comments welcome</h2><p>This is quick example of using Docker containers to access the NCS.  I welcome your comments and corrections.</p>
 <hr>
 <p>References:</p>
 <ol>
@@ -443,9 +443,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">发表于</span>
+                <span class="post-meta-item-text">Posted on</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-06T17:20:04+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-06T17:20:04+08:00">
                 2017-12-06
               </time>
             
@@ -619,9 +619,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">发表于</span>
+                <span class="post-meta-item-text">Posted on</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-21T17:47:11+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-21T17:47:11+08:00">
                 2017-09-21
               </time>
             
@@ -772,9 +772,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">发表于</span>
+                <span class="post-meta-item-text">Posted on</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-20T16:29:53+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-20T16:29:53+08:00">
                 2017-09-20
               </time>
             
@@ -958,7 +958,7 @@
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
                 <span class="site-state-item-count">4</span>
-                <span class="site-state-item-name">日志</span>
+                <span class="site-state-item-name">posts</span>
               </a>
             </div>
           
@@ -971,7 +971,7 @@
             <div class="site-state-item site-state-tags">
               
                 <span class="site-state-item-count">5</span>
-                <span class="site-state-item-name">标签</span>
+                <span class="site-state-item-name">tags</span>
               
             </div>
           
@@ -1012,7 +1012,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -1020,7 +1020,7 @@
 </div>
 <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 Total <span id="busuanzi_value_site_pv"></span> views.
-您是ichbinblau的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+You are the <span id="busuanzi_value_site_uv"></span>th visitor.
 <span id="busuanzi_value_page_pv"></span> Hits
 
         
