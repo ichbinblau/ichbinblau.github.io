@@ -69,10 +69,10 @@ Hello NCS! Device opened normally.
 Goodbye NCS!  Device Closed normally.
 NCS device working.
 ```
-You may continue to test the other model with different frameworks such as caffe and tensorflow under the `examples` folder. 
+You may continue to test the other model with different frameworks such as [Caffe](http://caffe.berkeleyvision.org/) and [TensorFlow](https://www.tensorflow.org/) under the `examples` folder. 
 
 ## Known issue
-When I exit the container and try to create the container again, I got the following error:
+When I exit the container and try to create the container again, I am getting the following error:
 
 ```
 theresa@theresa-ubuntu:~$ sudo docker run -it --rm --net=host --name=ncsdk -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash
