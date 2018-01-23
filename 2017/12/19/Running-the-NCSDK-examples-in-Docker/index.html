@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="ichbinblau">
 <meta property="og:description" content="In Movidius’s official documentation, Docker container is not an explicitly supported platform (as of Dec, 2017). I am working for Intel and I decided to test whether the NCS (Neural Compute Stick) ca">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2018-01-05T05:19:35.812Z">
+<meta property="og:updated_time" content="2018-01-23T03:12:42.325Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Running the NCSDK examples in Docker">
 <meta name="twitter:description" content="In Movidius’s official documentation, Docker container is not an explicitly supported platform (as of Dec, 2017). I am working for Intel and I decided to test whether the NCS (Neural Compute Stick) ca">
@@ -340,14 +340,12 @@
 <h2 id="Build-Docker-image-with-ncsdk-installed"><a href="#Build-Docker-image-with-ncsdk-installed" class="headerlink" title="Build Docker image with ncsdk installed"></a>Build Docker image with ncsdk installed</h2><p>The <a href="https://github.com/ichbinblau/ncsdk_container/blob/master/Dockerfile" target="_blank" rel="external">Dockerfile</a> I used to install the ncsdk and make the examples is based on instructions from <a href="https://github.com/hughdbrown/movidius/tree/master/docker" target="_blank" rel="external">hughdbrown</a>. I created a repo and uploaded the Dockerfile and its config files to it. You may check this <a href="https://github.com/ichbinblau/ncsdk_container" target="_blank" rel="external">branch</a>, and build the Docker image yourself. Run:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/ichbinblau/ncsdk_container </div><div class="line">cd ncsdk_container</div><div class="line">sudo docker build -t the_image_name .</div></pre></td></tr></table></figure>
 <p><strong>Note</strong>: The ncsdk installer currently does not honor any proxy setting options. Build the image without being behind a proxy or the build step may get stuck installing python dependencies from the internet. </p>
-<p>Alternatively, you can download the <a href="https://hub.docker.com/r/xshan1/ncsdk_container/" target="_blank" rel="external">image</a> I built on DockerHub straightaway. Run:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker pull xshan1/ncsdk_container</div></pre></td></tr></table></figure>
 <h2 id="Run-ncsdk-examples-in-Docker"><a href="#Run-ncsdk-examples-in-Docker" class="headerlink" title="Run ncsdk examples in Docker"></a>Run ncsdk examples in Docker</h2><p>The ncforum provided a way to run a Docker container which is accessible to the NCS. Host network mode is recommended to make the USB compute stick visible. </p>
 <blockquote>
 <p>Some users have had USB related problems using the Intel NCS within a Docker environment. We have found that including the <code>--net=host</code> flag can help make the device manager events visible to libusb in a Docker environment. </p>
 </blockquote>
 <p>Therefore, I used this command:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ the_image_name:the_image_tag /bin/bash</div></pre></td></tr></table></figure>
 <p>This leads to an interactive terminal in the container looking like this:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk$</div></pre></td></tr></table></figure>
 <p>Inside the container, you can run the examples to test access to the NCS.</p>

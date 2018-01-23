@@ -25,12 +25,6 @@ sudo docker build -t the_image_name .
 ```
 **Note**: The ncsdk installer currently does not honor any proxy setting options. Build the image without being behind a proxy or the build step may get stuck installing python dependencies from the internet. 
 
-Alternatively, you can download the [image](https://hub.docker.com/r/xshan1/ncsdk_container/) I built on DockerHub straightaway. Run:
-
-```
-sudo docker pull xshan1/ncsdk_container
-```
-
 ## Run ncsdk examples in Docker 
 The ncforum provided a way to run a Docker container which is accessible to the NCS. Host network mode is recommended to make the USB compute stick visible. 
 
@@ -39,7 +33,7 @@ The ncforum provided a way to run a Docker container which is accessible to the 
 Therefore, I used this command:
 
 ```
-sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash
+sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ the_image_name:the_image_tag /bin/bash
 ```
 This leads to an interactive terminal in the container looking like this:
 
