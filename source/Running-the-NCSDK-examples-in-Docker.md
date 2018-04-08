@@ -34,7 +34,7 @@ The ncforum provided a way to run a Docker container which is accessible to the 
 Therefore, I used this command:
 
 ```
-sudo docker run --rm --net=host -it -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ the_image_name:the_image_tag /bin/bash
+sudo docker run --rm --net=host -it --privileged -v /dev/bus/usb:/dev/bus/usb:shared -v /run/udev:/run/udev:ro -v /media/data2/NCS/:/media/data2/NCS/ the_image_name:the_image_tag /bin/bash
 ```
 This leads to an interactive terminal in the container looking like this:
 
@@ -65,15 +65,6 @@ Goodbye NCS!  Device Closed normally.
 NCS device working.
 ```
 You may continue to test the other model with different frameworks such as caffe and tensorflow under the `examples` folder. 
-
-## Known issue
-When I exit the container and try to create the container again, I got the following error:
-
-```
-theresa@theresa-ubuntu:~$ sudo docker run -it --rm --net=host --name=ncsdk -v /etc/apt/apt.conf:/etc/apt/apt.conf:ro --privileged -v /dev:/dev:shared -v /media/data2/NCS/:/media/data2/NCS/ xshan1/ncsdk_container:latest /bin/bash
-docker: Error response from daemon: oci runtime error: container_linux.go:265: starting container process caused "process_linux.go:368: container init caused \"open /dev/console: input/output error\"".
-```
-It looks like `/dev/console` is locked and not released when the container is destroyed. The workaround I found was to reboot the system to release the lock.  
 
 ## Comments welcome
 This is quick example of using Docker containers to access the NCS.  I welcome your comments and corrections.
