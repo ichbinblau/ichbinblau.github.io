@@ -260,6 +260,303 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/06/Setup-nofile-for-Docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ichbinblau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ichbinblau">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/06/Setup-nofile-for-Docker/" itemprop="url">Setup nofile for Docker</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-06T13:40:29+08:00">
+                2019-09-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h4><p>Yesterday I met a weird problem. The mosquitto container failed to start due to the error below:  The error message indicates that process failed to allocate memory for creating 1073741816 file descriptors.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">1567622954: mosquitto version 1.6.4 starting</div><div class="line">1567622954: Config loaded from /mosquitto/config/mosquitto.conf.</div><div class="line">1567622954: Opening websockets listen socket on port 9001.</div><div class="line">1567622954: Error: Unable to create websockets listener on port 9001.</div><div class="line">1567623383: mosquitto version 1.6.4 starting</div><div class="line">1567623383: Config loaded from /mosquitto/config/mosquitto.conf.</div><div class="line">1567623383: Opening websockets listen socket on port 9001.</div><div class="line">1567623383: libuv support not compiled in</div><div class="line">1567623383: OOM allocating 1073741816 fds</div><div class="line">1567623383: ZERO RANDOM FD</div><div class="line">1567623383: Error: Unable to create websockets listener on port 9001.</div></pre></td></tr></table></figure></p>
+<p>Then I traced into the mosquitto dependency called libwebsocket which raised this error. Telling from its source code, the number 1073741816 actually is the max nofile of the container. But the host systems max nofile is less than the fd value:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cat /proc/sys/fs/file-nr</div><div class="line">992     0       1589038</div></pre></td></tr></table></figure></p>
+<p>Theoretically, each container uses host’s max nofile by default.  How come does the big value come from?</p>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><ol>
+<li><p>Check the max nofile value got in container. It means that the default max nofile set in container is 1073741816. </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo docker run --rm debian sh -c &quot;ulimit -n&quot;</div><div class="line">1073741816</div></pre></td></tr></table></figure>
+</li>
+<li><p>Investigate where the value comes from. There are a couple of places to set it up. </p>
+<ul>
+<li><p>vim /usr/lib/systemd/system/docker.service</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> [Service]</div><div class="line">LimitNOFILE=infinity</div><div class="line">LimitNPROC=infinity</div><div class="line">LimitCORE=infinity</div></pre></td></tr></table></figure>
+</li>
+<li><p>vim /etc/docker/daemon.json, the settings here will ovewrite the setting in docker daemon</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> &#123;</div><div class="line">        &quot;default-ulimits&quot;: &#123;</div><div class="line">                &quot;nofile&quot;: &#123;</div><div class="line">                        &quot;Name&quot;: &quot;nofile&quot;,</div><div class="line">                        &quot;Hard&quot;: 20000,</div><div class="line">                        &quot;Soft&quot;: 20000</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>Set in docker run command like this: The configuration in command line will overwrite all the settings before. </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run --ulimit nofile=1024:1024 --rm debian sh -c &quot;ulimit -n&quot;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>The root cause is that the max nofile has been set in file <code>/usr/lib/systemd/system/docker.service</code> as infinity. In order to overwrite the daemon config, I set the nofile in docker-comopse.yml file. And then the error was gone.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ulimits:</div><div class="line">      nofile:</div><div class="line">        soft: 200000</div><div class="line">        hard: 200000</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><ol>
+<li><a href="https://docs.docker.com/engine/reference/commandline/run/" target="_blank" rel="external">https://docs.docker.com/engine/reference/commandline/run/</a></li>
+<li><a href="https://sukbeta.github.io/docker-ulimit-configure/" target="_blank" rel="external">https://sukbeta.github.io/docker-ulimit-configure/</a></li>
+<li><a href="https://blog.csdn.net/signmem/article/details/51365006" target="_blank" rel="external">https://blog.csdn.net/signmem/article/details/51365006</a></li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/19/Running-the-NCSDK-examples-in-Docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ichbinblau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ichbinblau">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/19/Running-the-NCSDK-examples-in-Docker/" itemprop="url">Running the NCSDK examples in Docker</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-19T14:41:32+08:00">
+                2017-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>In Movidius’s official documentation, Docker container is not an explicitly supported platform (as of Dec, 2017). Then I decided to test whether the NCS (Neural Compute Stick) can be accessed from a container. Benefiting from this <a href="https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs" target="_blank" rel="external">discussion thread</a>, I was able to run the ncsdk examples in a Docker container. Here are the steps I took to make it happen.<br><strong>Note: I am an Intel employee but all options are on my own.</strong>  </p>
+<h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><p>My test environment:</p>
+<ul>
+<li>Host: Ubuntu 16.04.2</li>
+<li>Docker: docker-ce v17.09</li>
+<li>Movidius compute stick attached</li>
+</ul>
+<h2 id="Build-Docker-image-with-ncsdk-installed"><a href="#Build-Docker-image-with-ncsdk-installed" class="headerlink" title="Build Docker image with ncsdk installed"></a>Build Docker image with ncsdk installed</h2><p>The <a href="https://github.com/ichbinblau/ncsdk_container/blob/master/Dockerfile" target="_blank" rel="external">Dockerfile</a> I used to install the ncsdk and make the examples is based on instructions from <a href="https://github.com/hughdbrown/movidius/tree/master/docker" target="_blank" rel="external">hughdbrown</a>. I created a repo and uploaded the Dockerfile and its config files to it. You may check this <a href="https://github.com/ichbinblau/ncsdk_container" target="_blank" rel="external">branch</a>, and build the Docker image yourself. Run:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/ichbinblau/ncsdk_container </div><div class="line">cd ncsdk_container</div><div class="line">sudo docker build -t the_image_name .</div></pre></td></tr></table></figure>
+<p><strong>Note</strong>: The ncsdk installer currently does not honor any proxy setting options. Build the image without being behind a proxy or the build step may get stuck installing python dependencies from the internet. </p>
+<h2 id="Run-ncsdk-examples-in-Docker"><a href="#Run-ncsdk-examples-in-Docker" class="headerlink" title="Run ncsdk examples in Docker"></a>Run ncsdk examples in Docker</h2><p>The ncforum provided a way to run a Docker container which is accessible to the NCS. Host network mode is recommended to make the USB compute stick visible. </p>
+<blockquote>
+<p>Some users have had USB related problems using the Intel NCS within a Docker environment. We have found that including the <code>--net=host</code> flag can help make the device manager events visible to libusb in a Docker environment. </p>
+</blockquote>
+<p>Therefore, I used this command:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run --rm --net=host -it --privileged -v /dev/bus/usb:/dev/bus/usb:shared -v /run/udev:/run/udev:ro -v /media/data2/NCS/:/media/data2/NCS/ the_image_name:the_image_tag /bin/bash</div></pre></td></tr></table></figure>
+<p>This leads to an interactive terminal in the container looking like this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk$</div></pre></td></tr></table></figure>
+<p>Inside the container, you can run the examples to test access to the NCS.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cd examples/apps/hello_ncs_cpp/</div><div class="line">make help</div><div class="line">make hello_ncs_cpp</div><div class="line">make run</div></pre></td></tr></table></figure>
+<p>Check the result by looking at the command outputs, such as this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">movidius@theresa-ubuntu:~/ncsdk/examples/apps/hello_ncs_cpp$ make run</div><div class="line"></div><div class="line">making hello_ncs_cpp</div><div class="line">g++ cpp/hello_ncs.cpp -o cpp/hello_ncs_cpp -lmvnc</div><div class="line">Created cpp/hello_ncs_cpp executable</div><div class="line"></div><div class="line">making run</div><div class="line">cd cpp; ./hello_ncs_cpp; cd ..</div><div class="line">Hello NCS! Device opened normally.</div><div class="line">Goodbye NCS!  Device Closed normally.</div><div class="line">NCS device working.</div></pre></td></tr></table></figure>
+<p>You may continue to test the other model with different frameworks such as caffe and tensorflow under the <code>examples</code> folder. </p>
+<h2 id="Comments-welcome"><a href="#Comments-welcome" class="headerlink" title="Comments welcome"></a>Comments welcome</h2><p>This is quick example of using Docker containers to access the NCS.  I welcome your comments and corrections.</p>
+<hr>
+<p>References:</p>
+<ol>
+<li><a href="https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs" target="_blank" rel="external">https://ncsforum.movidius.com/discussion/315/linux-virtual-environment-for-ncs</a></li>
+<li><a href="https://github.com/hughdbrown/movidius/tree/master/docker" target="_blank" rel="external">https://github.com/hughdbrown/movidius/tree/master/docker</a></li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/06/Bring-up-Kubernetes-v1-8-4-in-Ubuntu-16-04-with-Kubeadm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -803,7 +1100,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -816,7 +1113,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -858,7 +1155,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
